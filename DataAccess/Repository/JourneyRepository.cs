@@ -148,7 +148,11 @@ namespace DataAccess.Repository
             }
         }
 
-
+        /// <summary>
+        /// Insert journey
+        /// </summary>
+        /// <param name="journey"></param>
+        /// <returns></returns>
         public async Task<Journeys> InsertJourney(Journeys journey)
         {
             try
