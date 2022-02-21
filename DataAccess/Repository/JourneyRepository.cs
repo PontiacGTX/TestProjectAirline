@@ -50,9 +50,7 @@ namespace DataAccess.Repository
                         Destination = x.Destination,
                         Origin = x.Origin,
                         Flights = x.JourneyFlights.Where(x => x.Journey.Destination == flightOriginDestination.Destination && x.Journey.Origin == flightOriginDestination.Origin).Select(x => x.Flights).ToList(),
-                        // Flight = x.JourneyFlights.Where(x=>x.Journey.Destination == flightOriginDestination.Destination && x.Journey.Origin == flightOriginDestination.Origin).Select(x => x.Flights).GroupBy(x => x.Index),
-                        // Count = x.JourneyFlights.Where(y => y.Index == x.Index).Select(x => x.Flights).GroupBy(x => x.Index).Count()
-                    }).ToListAsync();
+                          }).ToListAsync();
                 List<Journey> JOURNEYS = null;
                 
                 try
@@ -127,6 +125,11 @@ namespace DataAccess.Repository
                 throw;
             }
         }
+        /// <summary>
+        /// Obtains flights belonging to a Journey from Db
+        /// </summary>
+        /// <param name="originDestination"></param>
+        /// <returns></returns>
         public async Task<Journeys> GetJourneyEntityByJourneyOriginDestination(OriginDestination originDestination)
         {
             try
