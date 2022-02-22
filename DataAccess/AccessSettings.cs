@@ -22,5 +22,7 @@ namespace DataAccess
         public int LargePayloadSize => int.Parse(_Configuration["PayloadSize:Large"]);
         public string Flights => _Configuration["FlightList:Flights"];
         public string ConString => _Configuration["ConnectionStrings:DbConnection"];
+        public string ApiUrl => _Configuration["TestProjectAPI:Uri"];
+        public string ApiEndPointGetJourneys => _Configuration["TestProjectAPI:GetJourneysEndPoint"];
     }
 }
