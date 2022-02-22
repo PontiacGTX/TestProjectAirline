@@ -12,6 +12,5 @@ namespace DataAccess.Models
         Small=0,
         Medium=1,
         Large=2,
-        All=3,
     }
 }

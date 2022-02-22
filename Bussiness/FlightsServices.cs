@@ -39,7 +39,7 @@ namespace Bussiness
         public async Task<ResponseObject> GetFlights(JourneyRequestModel journeyRequest,PayloadRequestModel payload)
         {
             List<Flight> flights = null;
-            var finalOriginDestionation = new List<List<Flight>>();
+            var finalOriginDestionation = new Dictionary<int,List<Flight>>();
             Journey[] journeys = null;
 
             try
@@ -76,7 +76,7 @@ namespace Bussiness
                                 if (flights[i].Destination == journeyRequest.Destination
                                     && flights[i].Origin == journeyRequest.Origin)
                                 {
-                                    if (!foundAt.Any(x => x == i))
+                                    if (!finalOriginDestionation.ContainsKey(i))
                                     {
 
                                         this.SetFoundFlightValues(flights[i], temp, ref found, ref finalOriginDestionation, ref foundAt, i);
@@ -93,7 +93,7 @@ namespace Bussiness
                                 {
                                     if (flights[i].Destination == journeyRequest.Destination && flights[i].Origin == availableOrigin.Destination)
                                     {
-                                        if (!foundAt.Any(x => x == i))
+                                        if (!finalOriginDestionation.ContainsKey(i))
                                         {
 
                                             this.SetFoundFlightValues(flights[i], temp, ref found, ref finalOriginDestionation, ref foundAt, i);
@@ -108,65 +108,20 @@ namespace Bussiness
                                         List<Flight> routes = new();
                                         destination = journeyRequest.Destination;
                                         bool foundFinalDest = false;
-                                        Func<Flight, string, bool> WhereDestinationIsEitherOriginOrDestination = (x, destination) => x.Destination == destination || x.Origin == destination;
+                                        
                                         if (ListItem.Any())
                                         {
-
-                                            if (ListItem.Any(x => WhereDestinationIsEitherOriginOrDestination(x, destination)))
+                                            this.GetRemainingFlightList(journeyRequest,availableOrigin,destination,ListItem,ref flights,ref foundFinalDest,ref routes);
+                                            if (foundFinalDest)
                                             {
-                                                foundFinalDest = true;
-                                                routes.AddRange(new[] { availableOrigin, ListItem.FirstOrDefault(x => WhereDestinationIsEitherOriginOrDestination(x, destination)) });
+                                                this.SetFoundFlightValues(routes, ref finalOriginDestionation);
+                                                routes.Clear();
                                                 break;
                                             }
-
-                                            string lastDest = ListItem.First().Destination;
-
-                                            foreach (var dest in ListItem)
-                                            {
-                                               
-                                                lastDest = ListItem.First().Destination;
-                                                var subDest = flights.Where(x => x.Origin == lastDest && x.Destination != journeyRequest.Origin).Where(x => ListItem.All(y => y.Origin != x.Destination)).ToList();
-                                                if (subDest.Any(x => WhereDestinationIsEitherOriginOrDestination(x, destination)))
-                                                {
-                                                    foundFinalDest = true;
-                                                    routes.Add(ListItem.FirstOrDefault(x => WhereDestinationIsEitherOriginOrDestination(x, destination)));
-
-                                                    break;
-                                                }
-                                    
-                                                for (int j = 0; j < subDest.Count; j++)
-                                                {
-                                                    if (WhereDestinationIsEitherOriginOrDestination(subDest[j], destination))
-                                                    {
-                                                        foundFinalDest = true;
-                                                        routes.AddRange(new[] { availableOrigin, dest, subDest[j] });
-                                                        break;
-                                                    }
-                                                    var InnerList = flights.Where(x => x.Origin == subDest[j].Destination && x.Destination != journeyRequest.Origin).ToList();
-                                             
-                                                    for (int k = 0; k < InnerList.Count; k++)
-                                                    {
-                                                        if (WhereDestinationIsEitherOriginOrDestination(InnerList[k], destination))
-                                                        {
-                                                            foundFinalDest = true;
-                                                            routes.AddRange(new[] { availableOrigin, dest, subDest[j], InnerList[k] });
-                                                            break;
-                                                        }
-                                                        //bool foundIt = InnerList[k].Destination == destination;
-                                                       
-                                                    }
-                                                }
-                                                if (foundFinalDest)
-                                                {
-                                                    this.SetFoundFlightValues(routes, ref finalOriginDestionation);
-                                                    routes.Clear();
-                                                    break;
-                                                }
-                                            }
-
-                                            if (!found)
-                                                break;
                                         }
+
+                                        if (!found)
+                                            break;
 
                                     }
                                     i++;
@@ -187,7 +142,8 @@ namespace Bussiness
                         journeys[l] = new Journey();
                         journeys[l].Destination = journeyRequest.Destination;
                         journeys[l].Origin = journeyRequest.Origin;
-                        journeys[l].Flights = travel.Distinct().ToList();
+                        journeys[l].Flights = travel.Value.Distinct().ToList();
+                        journeys[l].Price = journeys[l].Flights.Sum(x => x.Price);
                         journeys[l].Price = journeys[l].Flights.Sum(x => x.Price);
                         l++;
                     }
@@ -270,7 +226,7 @@ namespace Bussiness
         }
         public async Task<ResponseObject> GetPayload(int payload)
         {
-            object response = null;
+            IList<Flight> response = null;
             try
             {
                 response = payload switch
@@ -278,13 +234,7 @@ namespace Bussiness
                     (int)PayloadSizeEnum.Small => await _NewShoreServices.GetFights(_AccessSettings.SmallPayloadSize),
                     (int)PayloadSizeEnum.Medium => await _NewShoreServices.GetFights(_AccessSettings.MediumPayloadSize),
                     (int)PayloadSizeEnum.Large => await _NewShoreServices.GetFights(_AccessSettings.LargePayloadSize),
-                    (int)PayloadSizeEnum.All => new Dictionary<int, IList<Flight>>()
-                    {
-                        {(int)PayloadSizeEnum.Small,  await _NewShoreServices.GetFights(_AccessSettings.SmallPayloadSize) },
-                        {(int)PayloadSizeEnum.Medium, await _NewShoreServices.GetFights(_AccessSettings.MediumPayloadSize) },
-                        {(int)PayloadSizeEnum.Large , await _NewShoreServices.GetFights(_AccessSettings.LargePayloadSize) }
-                    },
-                    _ => Array.Empty<object>(),
+                    _ => Array.Empty<Flight>(),
                 };
             }
             catch (Exception ex)
