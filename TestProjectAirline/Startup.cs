@@ -88,6 +88,11 @@ namespace TestProjectAirline
             {
                 endpoints.MapControllers();
             });
+            app.Run(context =>
+            {
+                context.Response.Redirect("swagger");
+                return Task.CompletedTask;
+            });
         }
     }
 }
