@@ -29,10 +29,10 @@ namespace TestProjectAirline.Tests
                 JourneyTestServices journeyTestServices = new();
                 int count = journeys.Count();
                 List<bool> expected = new List<bool>(Enumerable.Range(1, count).Select(x => true));
-               var result= await journeyTestServices.AreValidJourneys(journeys.ToList(), requestJourneyModel);
+                var result = (await journeyTestServices.AreValidJourneys(journeys.ToList(), requestJourneyModel)).ToList();
                 Assert.Equal(result, expected);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 throw;

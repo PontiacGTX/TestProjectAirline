@@ -1,6 +1,7 @@
 ﻿using DataAccess;
 using DataAccess.Models;
 using DataAccess.Models.Requests;
+using DataAccess.Models.Responses;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -34,8 +35,11 @@ namespace TestProjectAirline.Tests.Services
                     responseMessage.EnsureSuccessStatusCode();
                     if (responseMessage.IsSuccessStatusCode)
                     {
-                        journeys = JsonConvert.DeserializeObject<IEnumerable<Journey>>(await responseMessage.Content.ReadAsStringAsync());    
+
+                      ResponseObject response =   JsonConvert.DeserializeObject<ResponseObject>(await responseMessage.Content.ReadAsStringAsync());    
+                      journeys = JsonConvert.DeserializeObject<IEnumerable <Journey>>(response.Data.ToString()) ;
                     }
+                        
 
                 }
                 return journeys;

@@ -32,8 +32,11 @@ namespace TestServices.Services
 
                     if (flight.Destination == journeyRequestModel.Destination)
                     {
-
-                        checks.Item1 = true;
+                        if (checkedFoundOrigin)
+                        {
+                            checks.Item2 = true;
+                            break;
+                        }
                     }
 
 
@@ -44,7 +47,7 @@ namespace TestServices.Services
 
 
                 validations.Add(checks);
-                foundFirstOrigin = false;
+                checkedFoundOrigin = foundFirstOrigin = false;
             }
 
 

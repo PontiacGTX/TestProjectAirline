@@ -1,4 +1,5 @@
 ﻿using DataAccess.Repository;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,8 +25,10 @@ namespace DataAccess.Models
         //[JsonPropertyName("transport")]
         public Transport Transport { get; set; } = new Transport();
         [JsonPropertyName("departureStation")]
+        [JsonProperty("departureStation")]
         public string Origin { get; set; }
         [JsonPropertyName("arrivalStation")]
+        [JsonProperty("arrivalStation")]
         public string Destination { get; set; }
         [JsonPropertyName("price")]
         public double Price { get; set; }
