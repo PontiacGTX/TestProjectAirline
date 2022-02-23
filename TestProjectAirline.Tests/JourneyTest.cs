@@ -14,9 +14,6 @@ namespace TestProjectAirline.Tests
     {
 
         [Theory]
-        [InlineData("CTG", "MZL", 0)]
-        [InlineData("CTG", "MZL", 1)]
-        [InlineData("CTG", "MZL" ,2)]
         [InlineData("MZL", "MDE", 2)]
         [InlineData("CTG", "BOG", 2)]
         [InlineData("MZL", "MDE", 1)]
