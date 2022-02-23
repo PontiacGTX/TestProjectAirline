@@ -1,4 +1,4 @@
-﻿using Bussiness;
+﻿using Business;
 using DataAccess.HelperClass.FactoryClass;
 using DataAccess.Models;
 using DataAccess.Models.Requests;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Bussiness.ClassHelper
+namespace Business.ClassHelper
 {
     public static class FlightServicesHelper
     {
@@ -84,7 +84,6 @@ namespace Bussiness.ClassHelper
                             routes.AddRange(new[] { availableOrigin, dest, subDest[j], InnerList[k] });
                             return foundFinalDest;
                         }
-                        //bool foundIt = InnerList[k].Destination == destination;
 
                     }
                 }

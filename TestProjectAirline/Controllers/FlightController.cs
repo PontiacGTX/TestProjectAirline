@@ -1,26 +1,21 @@
-﻿using Bussiness;
+﻿using Business;
 using DataAccess.HelperClass;
 using DataAccess.HelperClass.FactoryClass;
 using DataAccess.Models;
 using DataAccess.Models.Requests;
 using DataAccess.Models.Responses;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
-using TestProjectAirline.Models;
 
 namespace TestProjectAirline.Controllers
 {
     [Route("api/[controller]")]
     public class FlightController : ControllerBase
     {
-        private  ILogger<FlightController> _logger { get; }
+        private ILogger<FlightController> _logger { get; }
         private FlightsServices FlightsServices { get; }
 
         public FlightController(ILogger<FlightController> logger, FlightsServices flightsServices)
@@ -47,7 +42,7 @@ namespace TestProjectAirline.Controllers
                 }
             }
 
-           string invalidFields = ModelStateValidatorHelper.GetModelErrors(ModelState);
+            string invalidFields = ModelStateValidatorHelper.GetModelErrors(ModelState);
 
             return BadRequest(Factory.GetResponse<ErrorResponseObject>(Factory.GetStringError(ErrorStringEnum.BadRequestError) + invalidFields,
                 StatusCodes.Status400BadRequest,
@@ -55,13 +50,13 @@ namespace TestProjectAirline.Controllers
         }
 
 
-    
+
 
         [HttpPost("FlightIndex")]
         public async Task<IActionResult> FlightIndex([FromBody] PayloadRequestModel payloadRequest)
         {
 
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 try
                 {
@@ -72,7 +67,7 @@ namespace TestProjectAirline.Controllers
                     string errorInformation = ex.Message;
                     return StatusCode(StatusCodes.Status500InternalServerError,
                         Factory.GetResponse<ErrorResponseObject>(Factory.GetStringError(ErrorStringEnum.FailedRequest),
-                        StatusCodes.Status500InternalServerError,Factory.GetStringError(ErrorStringEnum.InternalServerError) + $" {errorInformation}"));
+                        StatusCodes.Status500InternalServerError, Factory.GetStringError(ErrorStringEnum.InternalServerError) + $" {errorInformation}"));
                 }
             }
 
@@ -81,7 +76,7 @@ namespace TestProjectAirline.Controllers
                 Factory.GetStringError(ErrorStringEnum.BadRequestError)));
         }
 
-      
-       
+
+
     }
 }

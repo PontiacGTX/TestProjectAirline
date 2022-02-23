@@ -1,4 +1,4 @@
-﻿using Bussiness.ClassHelper;
+﻿using Business.ClassHelper;
 using DataAccess;
 using DataAccess.HelperClass;
 using DataAccess.HelperClass.FactoryClass;
@@ -15,7 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Bussiness
+namespace Business
 {
     public class FlightsServices
     {
