@@ -27,7 +27,7 @@ namespace TestProjectAirline.Tests.Services
             {
                 using (httpClient =  new HttpClient())
                 {
-                    var url = Request(accessSettings.APIBaseUrl, accessSettings.ApiEndPointGetJourneys, $"{payloadSize}");
+                    var url = Request(accessSettings.ApiUrl, accessSettings.ApiEndPointGetJourneys, $"{payloadSize}");
                     httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                     string json = JsonConvert.SerializeObject(request);
                     HttpResponseMessage responseMessage = await  httpClient.PostAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
