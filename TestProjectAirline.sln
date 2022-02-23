@@ -7,11 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProjectAirline", "TestP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccess", "DataAccess\DataAccess.csproj", "{9AEEFEB3-BD80-4480-838F-29BC9241DCB9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bussiness", "Bussiness\Bussiness.csproj", "{6A7CB5E1-7671-44E2-A2B6-8688600AE185}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Business", "Bussiness\Business.csproj", "{6A7CB5E1-7671-44E2-A2B6-8688600AE185}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProjectAirline.Tests", "TestProjectAirline.Tests\TestProjectAirline.Tests.csproj", "{E6746B36-6E2B-4B67-A1DF-AA2D447ABBEC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestServices.Services", "TestServices\TestServices.Services.csproj", "{DA5559BE-14D7-4879-ABDE-611032FA92BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestServices.Services", "TestServices\TestServices.Services.csproj", "{DA5559BE-14D7-4879-ABDE-611032FA92BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
