@@ -15,7 +15,13 @@ namespace DataAccess
                       .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
             _Configuration = builder.Build();
         }
-
+        public AccessSettings(string path)
+        {
+            var builder = new ConfigurationBuilder()
+                     .SetBasePath(path)
+                     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            _Configuration = builder.Build();
+        }
         public string APIBaseUrl => _Configuration["BaseAPI:URL"];
         public int SmallPayloadSize => int.Parse(_Configuration["PayloadSize:Small"]);
         public int MediumPayloadSize => int.Parse(_Configuration["PayloadSize:Medium"]);

@@ -1,10 +1,12 @@
 ﻿using DataAccess;
+using DataAccess.HelperClass;
 using DataAccess.Models;
 using DataAccess.Models.Requests;
 using DataAccess.Models.Responses;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -19,7 +21,13 @@ namespace TestProjectAirline.Tests.Services
         string Request(params string[] arg) => string.Concat(arg);
         public JourneyServices()
         {
-            accessSettings = new AccessSettings();
+            string basePath = Directory.GetCurrentDirectory();
+            basePath = FIleHelper.CopyFileToDir(DirectoryHelper.GetNUpperDirectory(basePath,4),basePath, "appsettings.json", @"\TestProjectAirline\");
+            if (File.Exists(basePath))
+            {
+              basePath = DirectoryHelper.GetNUpperDirectory(basePath, 1);
+            }
+            accessSettings = new AccessSettings(basePath);
         }
         public async Task<IEnumerable<Journey>> GetJourney(JourneyRequestModel request,int payloadSize)
         {

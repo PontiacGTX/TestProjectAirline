@@ -14,7 +14,12 @@ namespace TestProjectAirline.Tests
     {
 
         [Theory]
-        [InlineData("MZL","MDE",2)]
+        [InlineData("MZL", "MDE", 2)]
+        [InlineData("CTG", "BOG", 2)]
+        [InlineData("MZL", "MDE", 1)]
+        [InlineData("CTG", "BOG", 1)]
+        [InlineData("MZL", "MDE", 0)]
+        [InlineData("CTG", "BOG", 0)]
         public async Task AreJorneysValid(string origin,string destination, int payload)
         {
             try
