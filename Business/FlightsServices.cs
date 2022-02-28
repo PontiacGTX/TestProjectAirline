@@ -8,6 +8,7 @@ using DataAccess.Models.Responses;
 using DataAccess.Repository;
 using DataAccess.Services;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.GraphModel;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -35,23 +36,159 @@ namespace Business
             _FlightsRepository = flightsRepository;
             _JourneyRepository = journeyRepository;
         }
-       
-        public async Task<ResponseObject> GetFlights(JourneyRequestModel journeyRequest,PayloadRequestModel payload)
+        public async Task<List<Flight>> GetFlights(JourneyRequestModel journeyRequestModel, Flight SeletedFlightOrigin, Flight SelectedFlightDestionation, List<Flight> selecectedFlightList, List<Flight> flights, Flight skip, int currentSelect = 0, List<Flight> selectedPreviousList = null, int remaningToCheck = 0)
+        {
+
+           
+            
+            if(SelectedFlightDestionation is not null)
+            if (!selecectedFlightList.Any(x => x.Origin == SelectedFlightDestionation?.Origin && x.Destination == SelectedFlightDestionation?.Destination))
+                 selecectedFlightList.Add(SelectedFlightDestionation);
+
+
+            if (SelectedFlightDestionation is null && remaningToCheck ==0)
+                return selecectedFlightList;
+         
+
+            if (SelectedFlightDestionation.Destination == journeyRequestModel.Destination || SelectedFlightDestionation.Origin ==journeyRequestModel.Destination)
+                return selecectedFlightList;
+
+            var selectedPrevDest = SelectedFlightDestionation;
+            Flight selectedDest = null;
+            if (skip is null)
+                selectedDest = flights.FirstOrDefault(x => x.Origin == selectedPrevDest.Destination && x.Destination != SelectedFlightDestionation.Origin);
+            else
+            {
+                var items = flights.Where(x => x.Origin == selectedPrevDest.Destination && x.Destination != SelectedFlightDestionation.Origin && x.Destination != skip.Origin && x.Destination != journeyRequestModel.Origin  && selectedPreviousList.All(y=>y.Origin !=x.Destination)).ToArray();
+                selectedDest = items.Any() ? items[currentSelect] : null;
+                if(selectedDest is not null)
+                selectedPreviousList.Add(selectedDest);
+
+                remaningToCheck = items.Count();
+            }
+            return await GetFlights(journeyRequestModel, selectedPrevDest, selectedDest, selecectedFlightList, flights,skip, currentSelect, selectedPreviousList);
+        }
+        public async Task<ResponseObject> GetFlightRoutes(JourneyRequestModel journeyRequestModel, PayloadRequestModel payload)
+        {
+            List<Flight> flights = null;
+            Journey[] journeys = null;
+            
+            if (!this.TryGetJourneys(ref journeys, _JourneyRepository, journeyRequestModel))
+            {
+
+                SortedDictionary<Flight, Dictionary<string, List<Flight>>> dic = new SortedDictionary<Flight, Dictionary<string, List<Flight>>>();
+                List<Flight> flightList = (await _NewShoreServices.GetFights(payload.PayloadSize)).ToList();
+                List<Flight> selectedflightsWithJourneysOrigin = flightList.Where(x => x.Origin == journeyRequestModel.Origin).ToList();
+
+
+                List<Flight> selectedFlights = new List<Flight>();
+                List<Flight> previousRoutes = new List<Flight>();
+                List<List<Flight>> availableFlights = new List<List<Flight>>();
+                bool checkNewFlight = false;
+                for (int i= 0;i<selectedflightsWithJourneysOrigin.Count;i++)
+                {
+                    selectedFlights = await GetFlights(journeyRequestModel, null, selectedflightsWithJourneysOrigin[i], selectedFlights,flightList,null);
+                    if (selectedFlights.Any())
+                    {
+                        int tries = flightList.Count(x=>x.Origin == selectedFlights.Last().Origin);
+                        int addedAt = 0;
+                        int ctr = 0;
+                        bool isFirstRun = true;
+                        List<Flight> innerPreviousFlights = new List<Flight>();
+                        List<Flight> remaningCheck = new List<Flight>();
+                        Flight lastOrign = null;
+                        int indexLastOrigin = 0;
+                        while (!selectedFlights.Any(x => x.Destination == journeyRequestModel.Destination) || ctr< tries)
+                        {
+                            
+                            if (selectedFlights.Any(x => x.Destination == journeyRequestModel.Destination))
+                            {
+                                availableFlights.Add(new List<Flight>(selectedFlights));
+                                break;
+                            }
+
+                            List<Flight> flight1 = null;
+                            Flight lastSelected = selectedFlights.Last();
+                            if ( selectedFlights is { Count:>0})
+                            {
+                                addedAt = isFirstRun ? 2: selectedFlights.Count();
+                                if(isFirstRun)
+                                {
+                                    lastOrign = selectedFlights[selectedFlights.Count - 1];
+                                    remaningCheck = flightList.Where(x => x.Origin == lastOrign.Origin && !previousRoutes.Any(y => x.Destination == y.Destination) && x.Destination != selectedflightsWithJourneysOrigin[i].Origin).ToList();//[ctr]
+                                    selectedFlights = selectedFlights.Take(addedAt).ToList();
+                                    lastOrign = selectedFlights.Last();
+                                    isFirstRun = false;
+                                }
+                                string lastOrigin =selectedFlights[selectedFlights.Count-1].Origin;
+                                
+                                flight1 = flightList.Where(x =>  x.Origin == lastOrigin && !previousRoutes.Any(y => x.Destination == y.Destination) && x.Destination!=selectedflightsWithJourneysOrigin[i].Origin).ToList();//[ctr]
+                                if(flight1.Count>0)
+                                    lastSelected = flight1.Last();
+
+
+
+                                if (flight1.Count ==0)
+                                {
+                                    lastOrign = remaningCheck[indexLastOrigin];
+                                    flight1 = flightList.Where(x => x.Origin == lastOrign.Origin && x.Destination != lastOrign.Origin && !previousRoutes.Any(y => x.Destination == y.Destination) && x.Destination != selectedflightsWithJourneysOrigin[i].Origin).ToList();//[ctr]
+                                    lastSelected = flight1[indexLastOrigin];
+                                    indexLastOrigin++;
+                                    
+                                }
+                             
+                                previousRoutes.Add(lastSelected);
+                                isFirstRun = false;
+                            }
+                            selectedFlights = await GetFlights(journeyRequestModel, null, lastSelected, selectedFlights, flightList, lastSelected, ctr, innerPreviousFlights);
+                            if (selectedFlights.Any(x => x.Destination == journeyRequestModel.Destination))
+                            {
+                                availableFlights.Add(new List<Flight>(selectedFlights));
+                                break;
+                            }
+                            
+
+                            if (selectedFlights is not { Count:0 })
+                            {
+                                checkNewFlight = true;
+                                remaningCheck = flightList.Where(x => x.Origin == lastOrign.Origin && !previousRoutes.Any(y => x.Destination == y.Destination) && x.Destination != selectedflightsWithJourneysOrigin[i].Origin).ToList();//[ctr]
+
+                                selectedFlights = selectedFlights.Take(addedAt).ToList();
+                            }
+                            
+                            ctr++;
+                        }
+                        innerPreviousFlights.Clear();
+                    }
+
+                   
+                    selectedFlights.Clear();
+                }
+
+                journeys = new Journey[availableFlights.Count];
+                int l = 0;
+                foreach (var travel in availableFlights)
+                {
+                    journeys[l] = new Journey();
+                    journeys[l].Destination = journeyRequestModel.Destination;
+                    journeys[l].Origin = journeyRequestModel.Origin;
+                    journeys[l].Flights = travel.Distinct().ToList();
+                    journeys[l].Price = journeys[l].Flights.Sum(x => x.Price);
+                    journeys[l].Price = journeys[l].Flights.Sum(x => x.Price);
+                    l++;
+                }
+            }
+            return Factory.GetResponse<ResponseObject>(journeys);
+        }
+        public async Task<ResponseObject> GetFlight(JourneyRequestModel journeyRequest,PayloadRequestModel payload)
         {
             List<Flight> flights = null;
             var finalOriginDestionation = new Dictionary<int,List<Flight>>();
             Journey[] journeys = null;
+       
+            
 
-            try
-            {
-                journeys = (await _JourneyRepository.GetJourneyByFlightDestination(new OriginDestination(journeyRequest))).ToArray() ;
-            }
-            catch 
-            {
-                //nothing to log
-            }
-
-            if (journeys is null or  { Length:0 })
+            if (! this.TryGetJourneys(ref journeys, _JourneyRepository, journeyRequest))
             {
                 try
                 {

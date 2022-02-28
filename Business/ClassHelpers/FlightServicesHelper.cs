@@ -2,6 +2,7 @@
 using DataAccess.HelperClass.FactoryClass;
 using DataAccess.Models;
 using DataAccess.Models.Requests;
+using DataAccess.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +33,18 @@ namespace Business.ClassHelper
                 List<Flight> newFlights = new List<Flight>(temp);
                 finalOriginDestionation[i] = newFlights;
             }
+        }
+        public static bool TryGetJourneys(this FlightsServices flightsServices,ref Journey[] journeys, JourneyRepository _JourneyRepository, JourneyRequestModel journeyRequest)
+        {
+            try
+            {
+                journeys = (_JourneyRepository.GetJourneyByFlightDestination(new OriginDestination(journeyRequest))).GetAwaiter().GetResult().ToArray();
+              
+            }
+            catch
+            {
+            }  
+            return (journeys is not null and { Length: > 0 });
         }
         public static void SetFoundFlightValues(this FlightsServices flightsServices, List<Flight> routes, ref List<List<Flight>> finalOriginDestionation)
         {
