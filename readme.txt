@@ -12,6 +12,6 @@ Add-Migration InitialMigration
 Update-Database
 
 on the route add /swagger/index.html
-then on the GetFlights API End point add a value in the payload between 0 and 2 and the route you want to check
+then on the GetFlights API End point add a value in the payload between 0, 1 and 2 and the route you wish to check
 
 on unit test the uri should be set to the url of the project
