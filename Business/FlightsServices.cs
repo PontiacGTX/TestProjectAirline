@@ -177,6 +177,68 @@ namespace Business
                     journeys[l].Price = journeys[l].Flights.Sum(x => x.Price);
                     l++;
                 }
+
+                int index = 1;
+                foreach (var journey in journeys)
+                {
+                    foreach (var flight in journey.Flights)
+                    {
+
+                        try
+                        {
+                            Transports transport = null;
+                            Flights flightInserted = null;
+                            Journeys journeysInsertedModel = null;
+                            if (flight.Transport.ValuesAreNotNull)
+                            {
+                                if (!(await _TransportRepository.TransportExist(new FlightCarrierFlightNumber(flight))))
+                                    transport = await _TransportRepository.InsertTransport(new Transports(flight));
+                                else
+                                {
+                                    transport = await _TransportRepository.GetTransportByFlightCarrierFlightNumber(new FlightCarrierFlightNumber(flight));
+                                }
+                            }
+
+                            if (transport is not null)
+                            {
+                                Flights flightInsertModel = new Flights(flight);
+                                flightInsertModel.IdTransport = transport.IdTransport;
+                                flightInsertModel.Index = index;
+                                flightInserted = await _FlightsRepository.InsertFlight(flightInsertModel);
+                            }
+                            if (flightInserted is not null)
+                            {
+                                if (!(await _JourneyRepository.ExistJourney(new OriginDestination(journeyRequestModel))))
+                                {
+                                    var journeyObj = new Journeys(journey);
+                                    journeyObj.Index = index;
+                                    journeysInsertedModel = await _JourneyRepository.InsertJourney(journeyObj);
+                                }
+                                else
+                                    journeysInsertedModel = await _JourneyRepository.GetJourneyEntityByJourneyOriginDestination(new OriginDestination(journeyRequestModel));
+
+                            }
+
+                            if (journeysInsertedModel is not null)
+                            {
+                                if (journeysInsertedModel is not null && flightInserted is not null)
+                                {
+                                    if (!(await _JourneyRepository.ExistsJourneyFlight(flightInserted.IdFlight, journeysInsertedModel.IdJourney)))
+                                        await _JourneyRepository.InsertJourneyFlight(journeysInsertedModel, flightInserted, index);
+                                }
+                            }
+
+                        }
+                        catch (Exception ex)
+                        {
+                            _Logger.LogError(Factory.GetError(nameof(GetFlights),
+                              string.Concat(ex.Message, " Details: ", ex.InnerException, " StackTrace: ", ex.StackTrace), parameters: $"{journeyRequestModel}"));
+
+                        }
+
+                    }
+                    index++;
+                }
             }
             return Factory.GetResponse<ResponseObject>(journeys);
         }
