@@ -46,11 +46,12 @@ namespace DataAccess.Repository
                     Include(x => x.JourneyFlights)
                     .ThenInclude(x => x.Flights)
                     .ThenInclude(x => x.Transport)
+                    .Where(x=>x.Destination == flightOriginDestination.Destination && x.Origin == flightOriginDestination.Origin)
                     .Select(x =>  new {
                         Destination = x.Destination,
                         Origin = x.Origin,
-                        Flights = x.JourneyFlights.Where(x => x.Journey.Destination == flightOriginDestination.Destination && x.Journey.Origin == flightOriginDestination.Origin).Select(x => x.Flights).ToList(),
-                          }).ToListAsync();
+                        Flights = x.JourneyFlights.Select(x => x.Flights).ToList(),
+                     }).ToListAsync();
                 List<Journey> JOURNEYS = null;
                 
                 try
