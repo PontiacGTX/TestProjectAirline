@@ -12,7 +12,7 @@ namespace DataAccess.HelperClass
         public static  IList<IList<Journey>> OrganizeJourneys(this IList<DataAccess.Repository.Journeys> listJourneys)
         {
 
-            var journeys = listJourneys.Select(x => x.JourneyFlights.Where(y => y.Flights.Index == x.Index).ToList()).ToList().Select((journey,idx)=>new {journey,idx }).ToDictionary(x=>x.idx);
+            //var journeys = listJourneys.Select(x => x.JourneyFlights.Where(y => y.Flights.Index == x.Index).ToList()).ToList().Select((journey,idx)=>new {journey,idx }).ToDictionary(x=>x.idx);
 
             //foreach(var j in journeys)
             //{

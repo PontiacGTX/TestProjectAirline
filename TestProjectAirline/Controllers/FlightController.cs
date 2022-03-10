@@ -31,7 +31,7 @@ namespace TestProjectAirline.Controllers
             {
                 try
                 {
-                    return Ok(await FlightsServices.GetFlightRoutes(journey, payload));
+                    return Ok(await FlightsServices.GetFlight(journey, payload));
                 }
                 catch (Exception ex)
                 {

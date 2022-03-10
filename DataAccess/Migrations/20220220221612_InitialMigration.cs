@@ -14,8 +14,7 @@ namespace DataAccess.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Origin = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Destination = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Price = table.Column<double>(type: "float", nullable: false),
-                    Index = table.Column<int>(type: "int", nullable: false)
+                    Price = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {

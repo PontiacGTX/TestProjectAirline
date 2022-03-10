@@ -66,6 +66,9 @@ namespace DataAccess.Services
             }
         }
 
+        public async Task<IList<Flight>> GetFights(string flights)
+            => JsonConvert.DeserializeObject<IEnumerable<Flight>>(flights, new FlightResponseConverter()).ToList();
 
+           
     }
 }
